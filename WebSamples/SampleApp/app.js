@@ -112,29 +112,58 @@ function start() {
 }
 
 var spatialInputTracking = false;
+var graspedCube = false;
 var lastSpatialInputX = 0;
 var lastSpatialInputY = 0;
 var lastSpatialInputZ = 0;
 
+function insideCube(x, y, z) {
+    var radius = 0.1;
+    if ((cubeX - radius <= x && x <= cubeX + radius)
+     && (cubeY - radius <= -y && -y <= cubeY + radius)
+     && (cubeZ - radius <= z && z <= cubeZ + radius)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 function onSpatialSourcePress(spatialInputEvent) {
+    console.log("onSpatialSourcePress");
     // Remember last hand position
     lastSpatialInputX = spatialInputEvent.x;
     lastSpatialInputY = spatialInputEvent.y;
     lastSpatialInputZ = spatialInputEvent.z;
 
+    console.log("box {" + cubeX + ", " + cubeY + ", " + cubeZ + "}");
+    console.log("click {" + lastSpatialInputX + ", " + lastSpatialInputY + ", " + lastSpatialInputZ + "}");
+    console.log("diff {" + (cubeX - lastSpatialInputX) + ", " + (cubeY - lastSpatialInputY) + ", " + (cubeZ - lastSpatialInputZ) + "}");
+
     spatialInputTracking = true;
+    graspedCube = insideCube(lastSpatialInputX, lastSpatialInputY, lastSpatialInputZ);
 }
 
 function onSpatialSourceRelease(spatialInputEvent) {
+    console.log("onSpatialSourceRelease");
     spatialInputTracking = false;
+    graspedCube = false;
 }
 
 function onSpatialSourceUpdate(spatialInputEvent) {
     if (spatialInputTracking === true) {
         // Compute new cube position based on hand delta movement
-        cubeX = cubeX - 3 * (lastSpatialInputX - spatialInputEvent.x);
-        cubeY = cubeY + 3 * (lastSpatialInputY - spatialInputEvent.y);
-        cubeZ = cubeZ - 3 * (lastSpatialInputZ - spatialInputEvent.z);
+        if (graspedCube) {
+            cubeX = cubeX - (lastSpatialInputX - spatialInputEvent.x);
+            cubeY = cubeY + (lastSpatialInputY - spatialInputEvent.y);
+            cubeZ = cubeZ - (lastSpatialInputZ - spatialInputEvent.z);
+        } else {
+            cubeX = cubeX - 3 * (lastSpatialInputX - spatialInputEvent.x);
+            cubeY = cubeY + 3 * (lastSpatialInputY - spatialInputEvent.y);
+            cubeZ = cubeZ - 3 * (lastSpatialInputZ - spatialInputEvent.z);
+        }
+        // cubeX = lastSpatialInputX;
+        // cubeY = -lastSpatialInputY;
+        // cubeZ = lastSpatialInputZ;
 
         // Move the cube around to follow hand movement
         modelMatrix[12] = cubeX;
@@ -148,6 +177,7 @@ function onSpatialSourceUpdate(spatialInputEvent) {
     }
 }
 
+console.log("starting");
 start();
 
 //
