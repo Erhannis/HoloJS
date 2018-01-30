@@ -142,7 +142,6 @@ var loadFBX = function(path, options, callback) {
 //////////////////////////////////////////////////////////////////////
 
 
-
 var path = '';
 //path = 'MASTER/fbx/F-18E_cockpit.FBX';
 //path = 'MASTER/fbx/green.fbx';
@@ -229,15 +228,24 @@ function insideModel(i, x, y, z) {
         return false;
     }
     let obj = models[i];
-    var radius = 0.1;
-    //TODO Do proper bounds checking?
-    if ((obj.position.x - radius <= x && x <= obj.position.x + radius)
-        && (obj.position.y - radius <= y && y <= obj.position.y + radius)
-        && (obj.position.z - radius <= z && z <= obj.position.z + radius)) {
+    //TODO Inefficient?
+    var bbox = new THREE.Box3().setFromObject(obj);
+
+    if (bbox.containsPoint({x,y,z})) {
         return true;
     } else {
         return false;
     }
+
+    // var radius = 0.1;
+    // //TODO Do proper bounds checking?
+    // if ((obj.position.x - radius <= x && x <= obj.position.x + radius)
+    //     && (obj.position.y - radius <= y && y <= obj.position.y + radius)
+    //     && (obj.position.z - radius <= z && z <= obj.position.z + radius)) {
+    //     return true;
+    // } else {
+    //     return false;
+    // }
 }
 
 function onSpatialSourcePress(spatialInputEvent) {
