@@ -148,9 +148,20 @@ var path = '';
 path = 'fbx/Brain_Model.fbx';
 //path = 'fbx/Sample_Ship.fbx';
 //path = 'fbx/formica rufa.fbx';
+//path = 'fbx/skin_mesh/untitled.fbx';
+//path = 'fbx/chair.fbx';
+//path = 'fbx/colosseum.fbx';
+//path = 'fbx/tire.fbx';
+//path = 'fbx/Rigged Hand.fbx';
+//path = 'fbx/anvil/Anvil.fbx';
 loadFBX(path, {}, function(object) {
-    object.scale.multiplyScalar(0.25);
+    //object.scale.multiplyScalar(0.0001);
+    object.scale.multiplyScalar(0.1);
     console.log(object);
+    var bbox = new THREE.Box3().setFromObject(object);
+    var center = bbox.getCenter();
+    var size = bbox.getSize();
+    console.log("obj at {" + center.x + ", " + center.y + ", " + center.z + "}, dims {" + size.x + ", " + size.y + ", " + size.z + "}");
 });
 /*
 loadFBX(path, {debug:true, frustumCulled:false, rotation:new THREE.Vector3(90, 90, 0), position:new THREE.Vector3(0, 0, 6000), scale:0.012, shadow:false, doublesided:true, shininess:1,
@@ -264,8 +275,12 @@ function onSpatialSourcePress(spatialInputEvent) {
     }
     let obj = models[index];
 
-    console.log("box {" + obj.position.x + ", " + obj.position.y + ", " + obj.position.z + "}");
-    console.log("diff {" + (obj.position.x - lastSpatialInputX) + ", " + (obj.position.y - lastSpatialInputY) + ", " + (obj.position.z - lastSpatialInputZ) + "}");
+    var bbox = new THREE.Box3().setFromObject(obj);
+    var center = bbox.getCenter();
+    var size = bbox.getSize();
+    console.log("obj at {" + center.x + ", " + center.y + ", " + center.z + "}, dims {" + size.x + ", " + size.y + ", " + size.z + "}");
+
+    console.log("diff {" + (center.x - lastSpatialInputX) + ", " + (center.y - lastSpatialInputY) + ", " + (center.z - lastSpatialInputZ) + "}");
 
     spatialInputTracking = true;
     if (insideModel(index, lastSpatialInputX, lastSpatialInputY, lastSpatialInputZ)) {
@@ -291,9 +306,18 @@ function onSpatialSourceUpdate(spatialInputEvent) {
             obj.position.z = obj.position.z - (lastSpatialInputZ - spatialInputEvent.z);
         } else {
             for (var obj of models) {
-                obj.position.x = obj.position.x - 3 * (lastSpatialInputX - spatialInputEvent.x);
-                obj.position.y = obj.position.y - 3 * (lastSpatialInputY - spatialInputEvent.y);
-                obj.position.z = obj.position.z - 3 * (lastSpatialInputZ - spatialInputEvent.z);
+                // obj.position.x = obj.position.x - 3 * (lastSpatialInputX - spatialInputEvent.x);
+                // obj.position.y = obj.position.y - 3 * (lastSpatialInputY - spatialInputEvent.y);
+                // obj.position.z = obj.position.z - 3 * (lastSpatialInputZ - spatialInputEvent.z);
+
+                //TODO This is just debugging
+                var bbox = new THREE.Box3().setFromObject(obj);
+                var center = bbox.getCenter();
+                var size = bbox.getSize();
+                console.log("obj at {" + center.x + ", " + center.y + ", " + center.z + "}, dims {" + size.x + ", " + size.y + ", " + size.z + "}");
+                obj.position.x = obj.position.x - (center.x - spatialInputEvent.x);
+                obj.position.y = obj.position.y - (center.y - spatialInputEvent.y);
+                obj.position.z = obj.position.z - (center.z - spatialInputEvent.z);
             }
         }
 
